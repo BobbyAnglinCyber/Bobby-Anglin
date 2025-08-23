@@ -1,121 +1,58 @@
 const terminal = document.getElementById("terminal");
+const input = document.getElementById("input");
 
-let username = "BobbyAnglin";
-let hostname = "portfolio";
-let currentPath = "/home/BobbyAnglin";
+input.focus();
 
-// Portfolio filesystem
-const fakeFS = {
-  "/": ["home"],
-  "/home": ["BobbyAnglin"],
-  "/home/BobbyAnglin": ["Projects", "Skills", "Experience", "Education", "Contacts", "about.txt"],
-  "/home/BobbyAnglin/Projects": ["Project1", "Project2", "Project3"],
-  "/home/BobbyAnglin/Skills": ["JavaScript", "Python", "Cybersecurity", "Linux"],
-  "/home/BobbyAnglin/Experience": ["Company1", "Company2"],
-  "/home/BobbyAnglin/Education": ["Bachelors", "Certifications"],
-  "/home/BobbyAnglin/Contacts": ["email.txt", "linkedin.txt"]
-};
+document.addEventListener("click", () => input.focus());
 
-// File contents
-const fileContents = {
-  "about.txt": "Hello! I'm Bobby Anglin, a cybersecurity enthusiast building interactive portfolios.",
-  "email.txt": "bobby@example.com",
-  "linkedin.txt": "https://www.linkedin.com/in/bobbyanglin"
-};
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const command = input.innerText.trim();
+    runCommand(command);
+    input.innerText = "";
+  }
+});
 
-// Create new prompt line
-function newPrompt() {
-  const line = document.createElement("div");
-  line.classList.add("line");
+function runCommand(cmd) {
+  let output = "";
 
-  const prompt = document.createElement("span");
-  prompt.classList.add("prompt");
-  prompt.textContent = `${username}@${hostname}:${currentPath}$`;
-
-  const input = document.createElement("input");
-  input.classList.add("input");
-  input.type = "text";
-
-  line.appendChild(prompt);
-  line.appendChild(input);
-  terminal.appendChild(line);
-
-  input.focus();
-
-  input.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
-      handleCommand(input.value);
-      input.disabled = true;
-      newPrompt();
-      terminal.scrollTop = terminal.scrollHeight;
-    }
-  });
-}
-
-// Handle commands
-function handleCommand(cmd) {
-  const output = document.createElement("div");
-  output.classList.add("output");
-
-  let parts = cmd.trim().split(" ");
-  let base = parts[0];
-  let args = parts.slice(1);
-
-  switch(base) {
-    case "help":
-      output.innerHTML = "Available commands: <br>help, ls, cd, pwd, whoami, cat, clear";
-      break;
-    case "whoami":
-      output.textContent = username;
-      break;
-    case "pwd":
-      output.textContent = currentPath;
-      break;
-    case "ls":
-      let items = fakeFS[currentPath] || [];
-      output.innerHTML = items.map(item =>
-        fakeFS[`${currentPath}/${item}`] 
-          ? `<span class="dir">${item}</span>` 
-          : `<span class="file">${item}</span>`
-      ).join("  ");
-      break;
-    case "cd":
-      if (!args[0]) break;
-      let target = args[0];
-      if (target === "..") {
-        if (currentPath !== "/") {
-          currentPath = currentPath.split("/").slice(0, -1).join("/") || "/";
-        }
-      } else {
-        let newPath = currentPath === "/" ? `/${target}` : `${currentPath}/${target}`;
-        if (fakeFS[newPath]) {
-          currentPath = newPath;
-        } else {
-          output.innerHTML = `<span class="error">cd: ${target}: No such file or directory</span>`;
-        }
-      }
-      break;
-    case "cat":
-      if (!args[0]) break;
-      let filename = args[0];
-      if (fileContents[filename]) {
-        output.textContent = fileContents[filename];
-      } else {
-        output.innerHTML = `<span class="error">cat: ${filename}: No such file</span>`;
-      }
-      break;
-    case "clear":
-      terminal.innerHTML = "";
-      return;
-    case "":
-      output.textContent = "";
-      break;
-    default:
-      output.innerHTML = `<span class="error">${base}: command not found</span>`;
+  if (cmd === "ls") {
+    output = "Documents  Downloads  Music  Pictures  Projects";
+  } else if (cmd === "whoami") {
+    output = "user";
+  } else if (cmd === "pwd") {
+    output = "/home/user";
+  } else if (cmd === "echo hello") {
+    output = "hello";
+  } else if (cmd === "help") {
+    output = "Available commands: ls, whoami, pwd, echo hello, help";
+  } else if (cmd.length === 0) {
+    output = "";
+  } else {
+    output = `bash: ${cmd}: command not found`;
   }
 
-  terminal.appendChild(output);
-}
+  const newLine = document.createElement("div");
+  newLine.classList.add("line");
+  newLine.innerHTML = `<span class="prompt">user@jammy:/home/user$</span> ${cmd}`;
+  terminal.appendChild(newLine);
 
-newPrompt();
+  if (output) {
+    const outLine = document.createElement("div");
+    outLine.textContent = output;
+    terminal.appendChild(outLine);
+  }
+
+  const newPrompt = document.createElement("div");
+  newPrompt.classList.add("line");
+  newPrompt.innerHTML = `<span class="prompt">user@jammy:/home/user$</span> <span class="input" id="input" contenteditable="true"></span>`;
+  terminal.appendChild(newPrompt);
+
+  input.removeAttribute("id");
+  const newInput = newPrompt.querySelector(".input");
+  newInput.focus();
+
+  document.addEventListener("click", () => newInput.focus());
+}
 
