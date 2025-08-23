@@ -1,67 +1,81 @@
-/* Radial background */
-body, html {
+/* Body & background */
+body {
   margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  font-family: 'Ubuntu Mono', monospace;
-  overflow: hidden;
+  height: 100vh;
+  background: radial-gradient(circle at top left, #300a24, #1a1a1a);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Ubuntu Mono", monospace;
 }
 
-.background {
-  position: fixed;
+/* Terminal window */
+#terminal {
+  background: rgba(28, 28, 28, 0.95);
+  backdrop-filter: blur(6px);
+  color: #eeeeec;
+  width: 80%;
+  max-width: 900px;
+  height: 70%;
+  padding: 35px 15px 15px 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 25px rgba(0,0,0,0.7);
+  overflow-y: auto;
+  white-space: pre-wrap;
+  border: 1px solid #3c3c3c;
+  position: relative;
+}
+
+/* Top bar like GNOME Terminal */
+#terminal::before {
+  content: "";
+  display: block;
+  height: 22px;
+  width: 100%;
+  background: linear-gradient(to right, #2e2e2e, #222);
+  border-radius: 8px 8px 0 0;
+  position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at top left, #5d1049, #1a000f);
-  z-index: -1;
 }
 
-/* Terminal styling */
-.terminal {
-  position: relative;
-  max-width: 800px;
-  margin: 50px auto;
-  padding: 20px;
-  background-color: #300a24;
-  border-radius: 8px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-  color: #eeeeec;
-  font-size: 14px;
-  line-height: 1.4;
-  overflow-y: auto;
-  min-height: 400px;
+/* Top bar buttons placeholder */
+#terminal::after {
+  content: "";
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  top: 5px;
+  left: 10px;
 }
 
-/* Prompt and input */
+.line {
+  display: flex;
+  flex-wrap: wrap;
+}
+
 .prompt {
-  color: #00d07f; /* Ubuntu green */
-  font-weight: bold;
+  color: #f57900; /* Ubuntu orange */
+  margin-right: 5px;
 }
 
 .input {
+  flex: 1;
   outline: none;
   border: none;
   background: transparent;
-  color: inherit;
+  color: #eeeeec;
   font-family: inherit;
   font-size: inherit;
-  width: 90%;
 }
 
-/* Outputs */
 .output {
-  color: #f8f8f2; /* Light grayish output */
-  margin-left: 0.5em;
+  margin-left: 20px;
+  color: #ddd;
 }
 
-/* Directories and files */
-.dir {
-  color: #ffb964;
-}
-
-.file {
-  color: #78dce8;
-}
+/* Syntax colors */
+.dir { color: #729fcf; }   /* blue */
+.file { color: #eeeeec; }  /* white */
+.error { color: #ef2929; } /* red */
 
