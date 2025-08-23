@@ -1,57 +1,56 @@
 const terminal = document.getElementById("terminal");
-const input = document.getElementById("input");
 
-input.focus();
+function newLine() {
+  const line = document.createElement("div");
+  line.classList.add("line");
 
-document.addEventListener("click", () => input.focus());
+  const prompt = document.createElement("span");
+  prompt.classList.add("prompt");
+  prompt.textContent = "user@jammy:/home/user$ ";
 
-document.addEventListener("keydown", function (e) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    const command = input.innerText.trim();
-    runCommand(command);
-    input.innerText = "";
-  }
-});
+  const input = document.createElement("span");
+  input.classList.add("input");
+  input.contentEditable = true;
 
-function runCommand(cmd) {
-  let output = "";
+  line.appendChild(prompt);
+  line.appendChild(input);
+  terminal.appendChild(line);
 
-  if (cmd === "ls") {
-    output = "Documents  Downloads  Music  Pictures  Projects";
-  } else if (cmd === "whoami") {
-    output = "user";
-  } else if (cmd === "pwd") {
-    output = "/home/user";
-  } else if (cmd === "echo hello") {
-    output = "hello";
-  } else if (cmd === "help") {
-    output = "Available commands: ls, whoami, pwd, echo hello, help";
-  } else if (cmd.length === 0) {
-    output = "";
-  } else {
-    output = `bash: ${cmd}: command not found`;
-  }
+  input.focus();
 
-  const newLine = document.createElement("div");
-  newLine.classList.add("line");
-  newLine.innerHTML = `<span class="prompt">user@jammy:/home/user$</span> ${cmd}`;
-  terminal.appendChild(newLine);
-
-  if (output) {
-    const outLine = document.createElement("div");
-    outLine.textContent = output;
-    terminal.appendChild(outLine);
-  }
-
-  const newPrompt = document.createElement("div");
-  newPrompt.classList.add("line");
-  newPrompt.innerHTML = `<span class="prompt">user@jammy:/home/user$</span> <span class="input" id="input" contenteditable="true"></span>`;
-  terminal.appendChild(newPrompt);
-
-  input.removeAttribute("id");
-  const newInput = newPrompt.querySelector(".input");
-  newInput.focus();
-
-  document.addEventListener("click", () => newInput.focus());
+  // keep cursor inside input
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleCommand(input.textContent.trim());
+      input.contentEditable = false;
+    }
+  });
 }
+
+function handleCommand(cmd) {
+  let output = document.createElement("div");
+  output.classList.add("output");
+
+  if (cmd === "help") {
+    output.textContent = "Available commands: help, ls, pwd, clear";
+  } else if (cmd === "ls") {
+    output.textContent = "Desktop  Documents  Downloads  Music  Pictures  Videos";
+  } else if (cmd === "pwd") {
+    output.textContent = "/home/user";
+  } else if (cmd === "clear") {
+    terminal.innerHTML = "";
+    newLine();
+    return;
+  } else if (cmd.length === 0) {
+    output.textContent = "";
+  } else {
+    output.textContent = `Command not found: ${cmd}`;
+  }
+
+  terminal.appendChild(output);
+  newLine();
+}
+
+// Start terminal
+newLine();
