@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -200,35 +199,11 @@
         
         <div class="terminal-body">
             <div class="history" id="history">
-                <div class="output ascii-art">
-    ██╗   ██╗██████╗ ██╗   ██╗███╗   ██╗████████╗██╗   ██╗
-    ██║   ██║██╔══██╗██║   ██║████╗  ██║╚══██╔══╝██║   ██║
-    ██║   ██║██████╔╝██║   ██║██╔██╗ ██║   ██║   ██║   ██║
-    ██║   ██║██╔══██╗██║   ██║██║╚██╗██║   ██║   ██║   ██║
-    ╚██████╔╝██████╔╝╚██████╔╝██║ ╚████║   ██║   ╚██████╔╝
-     ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝   ╚═╝    ╚═════╝ 
-                                                          
-                    22.04 LTS Jammy Jellyfish
-                </div>
-                <div class="output">Welcome to Ubuntu 22.04.3 LTS (GNU/Linux 5.19.0-46-generic x86_64)</div>
-                <div class="output">
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/advantage
-                </div>
-                <div class="output">System information as of Sat Aug 23 14:30:22 UTC 2025</div>
-                <div class="output">
-  System load:  0.08              Processes:             128
-  Usage of /:   12.4% of 29.12GB  Users logged in:       1
-  Memory usage: 23%               IPv4 address for eth0: 192.168.1.100
-  Swap usage:   0%
-                </div>
-                <div class="output">Last login: Sat Aug 23 14:25:15 2025 from 192.168.1.1</div>
             </div>
             
             <div class="prompt-line">
                 <span class="prompt">
-                    <span class="user">ubuntu</span><span class="at">@</span><span class="host">jammy</span><span class="colon">:</span><span class="path">~</span><span class="dollar">$</span>
+                    <span class="user">BobbyAnglin</span><span class="at">@</span><span class="host">Portfolio</span><span class="colon">:</span><span class="path" id="currentPath">/home/portfolio</span><span class="dollar">$</span>
                 </span>
                 <input type="text" class="command-input" id="commandInput" autofocus>
                 <span class="cursor" id="cursor">&nbsp;</span>
@@ -240,122 +215,180 @@
         const commandInput = document.getElementById('commandInput');
         const history = document.getElementById('history');
         const cursor = document.getElementById('cursor');
+        const currentPathElement = document.getElementById('currentPath');
         
-        let currentPath = '~';
+        let currentPath = '/home/portfolio';
         let commandHistory = [];
         let historyIndex = -1;
         
         // File system simulation
         const fileSystem = {
-            '~': {
+            '/home/portfolio': {
                 type: 'directory',
                 contents: {
-                    'Documents': { type: 'directory', contents: {} },
-                    'Downloads': { type: 'directory', contents: {} },
-                    'Desktop': { type: 'directory', contents: {} },
-                    'Pictures': { type: 'directory', contents: {} },
-                    'Music': { type: 'directory', contents: {} },
-                    'Videos': { type: 'directory', contents: {} },
-                    '.bashrc': { type: 'file', content: '# ~/.bashrc: executed by bash(1) for non-login shells.' },
-                    'hello.txt': { type: 'file', content: 'Hello Ubuntu!' },
-                    'script.sh': { type: 'executable', content: '#!/bin/bash\necho "Hello from script!"' }
+                    'about': { type: 'directory', contents: {} },
+                    'Projects': { 
+                        type: 'directory', 
+                        contents: {
+                            'Project1': { type: 'directory', contents: {} },
+                            'Project2': { type: 'directory', contents: {} }
+                        }
+                    },
+                    'Skills': { 
+                        type: 'directory', 
+                        contents: {
+                            'Skill1': { type: 'directory', contents: {} },
+                            'Skill2': { type: 'directory', contents: {} }
+                        }
+                    },
+                    'Experience': { type: 'directory', contents: {} },
+                    'Education': { type: 'directory', contents: {} },
+                    'Contacts': { type: 'directory', contents: {} }
                 }
+            },
+            '/home/portfolio/about': {
+                type: 'directory',
+                contents: {}
+            },
+            '/home/portfolio/Projects': {
+                type: 'directory',
+                contents: {
+                    'Project1': { type: 'directory', contents: {} },
+                    'Project2': { type: 'directory', contents: {} }
+                }
+            },
+            '/home/portfolio/Projects/Project1': {
+                type: 'directory',
+                contents: {}
+            },
+            '/home/portfolio/Projects/Project2': {
+                type: 'directory',
+                contents: {}
+            },
+            '/home/portfolio/Skills': {
+                type: 'directory',
+                contents: {
+                    'Skill1': { type: 'directory', contents: {} },
+                    'Skill2': { type: 'directory', contents: {} }
+                }
+            },
+            '/home/portfolio/Skills/Skill1': {
+                type: 'directory',
+                contents: {}
+            },
+            '/home/portfolio/Skills/Skill2': {
+                type: 'directory',
+                contents: {}
+            },
+            '/home/portfolio/Experience': {
+                type: 'directory',
+                contents: {}
+            },
+            '/home/portfolio/Education': {
+                type: 'directory',
+                contents: {}
+            },
+            '/home/portfolio/Contacts': {
+                type: 'directory',
+                contents: {}
             }
         };
 
-        const commands = {
-            help: () => {
-                return `Available commands:
+        function getCurrentDirectory() {
+            return fileSystem[currentPath];
+        }
+
+        function updatePromptPath() {
+            currentPathElement.textContent = currentPath;
+        }
+
+        function addToHistory(content, className = '') {
+            const div = document.createElement('div');
+            div.className = `output ${className}`;
+            div.innerHTML = content;
+            history.appendChild(div);
+            history.scrollTop = history.scrollHeight;
+        }
+
+        function helpCommand() {
+            return `Available commands:
   help     - Show this help message
   ls       - List directory contents
+  cd       - Change directory (cd <directory>, cd .., cd /)
   pwd      - Print working directory
   whoami   - Display current username
   date     - Show current date and time
   echo     - Display text
-  cat      - Display file contents
   clear    - Clear terminal screen
-  uname    - System information
-  uptime   - System uptime
-  ps       - Show running processes
-  df       - Display filesystem usage
-  free     - Show memory usage
   neofetch - Display system info with ASCII art`;
-            },
+        }
+
+        function lsCommand(args) {
+            const currentDir = getCurrentDirectory();
+            if (!currentDir) return 'Directory not found';
             
-            ls: (args) => {
-                const currentDir = getCurrentDirectory();
-                if (!currentDir) return 'Directory not found';
-                
-                let output = '';
-                for (const [name, item] of Object.entries(currentDir.contents)) {
-                    const className = item.type === 'directory' ? 'directory' : 
-                                    item.type === 'executable' ? 'executable' : 'file';
-                    output += `<span class="${className}">${name}</span>  `;
-                }
-                return output || 'Directory is empty';
-            },
-            
-            pwd: () => currentPath,
-            
-            whoami: () => 'ubuntu',
-            
-            date: () => new Date().toString(),
-            
-            echo: (args) => args.join(' '),
-            
-            cat: (args) => {
-                if (args.length === 0) return 'cat: missing file operand';
-                const filename = args[0];
-                const currentDir = getCurrentDirectory();
-                if (!currentDir) return 'Directory not found';
-                
-                const file = currentDir.contents[filename];
-                if (!file) return `cat: ${filename}: No such file or directory`;
-                if (file.type === 'directory') return `cat: ${filename}: Is a directory`;
-                
-                return file.content;
-            },
-            
-            clear: () => {
-                history.innerHTML = '';
+            let output = '';
+            for (const [name, item] of Object.entries(currentDir.contents)) {
+                const className = item.type === 'directory' ? 'directory' : 
+                                item.type === 'executable' ? 'executable' : 'file';
+                output += `<span class="${className}">${name}</span>  `;
+            }
+            return output || 'Directory is empty';
+        }
+
+        function cdCommand(args) {
+            if (args.length === 0) {
+                currentPath = '/home/portfolio';
+                updatePromptPath();
                 return '';
-            },
+            }
             
-            uname: (args) => {
-                if (args.includes('-a')) {
-                    return 'Linux jammy 5.19.0-46-generic #47-Ubuntu SMP PREEMPT_DYNAMIC Mon Jun 20 20:08:34 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux';
+            const targetPath = args[0];
+            let newPath;
+            
+            if (targetPath === '..') {
+                const pathParts = currentPath.split('/').filter(p => p);
+                if (pathParts.length > 2) {
+                    pathParts.pop();
+                    newPath = '/' + pathParts.join('/');
+                } else {
+                    newPath = '/home/portfolio';
                 }
-                return 'Linux';
-            },
+            } else if (targetPath === '/') {
+                newPath = '/home/portfolio';
+            } else if (targetPath.startsWith('/')) {
+                if (targetPath.startsWith('/home/portfolio')) {
+                    newPath = targetPath;
+                } else {
+                    return `cd: ${targetPath}: No such file or directory`;
+                }
+            } else {
+                if (currentPath.endsWith('/')) {
+                    newPath = currentPath + targetPath;
+                } else {
+                    newPath = currentPath + '/' + targetPath;
+                }
+            }
             
-            uptime: () => {
-                const uptime = Math.floor(Math.random() * 86400); // Random uptime in seconds
-                const hours = Math.floor(uptime / 3600);
-                const minutes = Math.floor((uptime % 3600) / 60);
-                return ` 14:30:22 up ${hours}:${minutes.toString().padStart(2, '0')}, 1 user, load average: 0.08, 0.12, 0.15`;
-            },
-            
-            ps: () => {
-                return `  PID TTY          TIME CMD
- 1234 pts/0    00:00:00 bash
- 5678 pts/0    00:00:00 ps`;
-            },
-            
-            df: () => {
-                return `Filesystem      1K-blocks      Used Available Use% Mounted on
-/dev/sda1        30485760   3940148  25281404  14% /
-tmpfs             2021752         0   2021752   0% /dev/shm
-/dev/sda2         1046528     34568    946744   4% /boot`;
-            },
-            
-            free: () => {
-                return `               total        used        free      shared  buff/cache   available
-Mem:         4043504      931428     1402076       12000     1710000     2782076
-Swap:        2097148           0     2097148`;
-            },
-            
-            neofetch: () => {
-                return `<span class="ascii-art">                          ./+o+-       
+            if (fileSystem[newPath] && fileSystem[newPath].type === 'directory') {
+                currentPath = newPath;
+                updatePromptPath();
+                return '';
+            } else {
+                const currentDir = getCurrentDirectory();
+                if (currentDir && currentDir.contents && currentDir.contents[targetPath] && 
+                    currentDir.contents[targetPath].type === 'directory') {
+                    currentPath = newPath;
+                    updatePromptPath();
+                    return '';
+                } else {
+                    return `cd: ${targetPath}: No such file or directory`;
+                }
+            }
+        }
+
+        function neofetchCommand() {
+            return `<span class="ascii-art">                          ./+o+-       
                   yyyyy- -yyyyyy+      
                ://+//////-yyyyyyo      
            .++ .:/++++++/-.+sss/\`      
@@ -374,7 +407,7 @@ Swap:        2097148           0     2097148`;
                    \`\`\`\` +oo+++o\:     
                         \`oo++.       </span>
 
-<span class="user">ubuntu</span>@<span class="host">jammy</span>
+<span class="user">BobbyAnglin</span>@<span class="host">Portfolio</span>
 <span style="color: #e95420;">-----------</span>
 <span style="color: #74c0fc;">OS:</span> Ubuntu 22.04.3 LTS x86_64
 <span style="color: #74c0fc;">Kernel:</span> 5.19.0-46-generic
@@ -383,31 +416,6 @@ Swap:        2097148           0     2097148`;
 <span style="color: #74c0fc;">Terminal:</span> gnome-terminal
 <span style="color: #74c0fc;">CPU:</span> Intel i7-12700K (16) @ 3.600GHz
 <span style="color: #74c0fc;">Memory:</span> 931MiB / 3949MiB`;
-            }
-        };
-
-        function getCurrentDirectory() {
-            const pathParts = currentPath.split('/').filter(p => p);
-            let current = fileSystem['~'];
-            
-            for (const part of pathParts) {
-                if (part === '~') continue;
-                if (current && current.contents && current.contents[part]) {
-                    current = current.contents[part];
-                } else {
-                    return null;
-                }
-            }
-            
-            return current;
-        }
-
-        function addToHistory(content, className = '') {
-            const div = document.createElement('div');
-            div.className = `output ${className}`;
-            div.innerHTML = content;
-            history.appendChild(div);
-            history.scrollTop = history.scrollHeight;
         }
 
         function processCommand(input) {
@@ -416,17 +424,49 @@ Swap:        2097148           0     2097148`;
             const args = parts.slice(1);
             
             // Add command to history
-            addToHistory(`<span class="user">ubuntu</span><span class="at">@</span><span class="host">jammy</span><span class="colon">:</span><span class="path">${currentPath}</span><span class="dollar">$</span> ${input}`);
+            addToHistory(`<span class="user">BobbyAnglin</span><span class="at">@</span><span class="host">Portfolio</span><span class="colon">:</span><span class="path">${currentPath}</span><span class="dollar">$</span> ${input}`);
             
             if (cmd === '') return;
             
-            if (commands[cmd]) {
-                const output = commands[cmd](args);
-                if (output) {
-                    addToHistory(output);
-                }
-            } else {
-                addToHistory(`Command '${cmd}' not found. Type 'help' for available commands.`, 'error');
+            let output = '';
+            
+            switch(cmd) {
+                case 'help':
+                    output = helpCommand();
+                    break;
+                case 'ls':
+                    output = lsCommand(args);
+                    break;
+                case 'cd':
+                    output = cdCommand(args);
+                    break;
+                case 'pwd':
+                    output = currentPath;
+                    break;
+                case 'whoami':
+                    output = 'BobbyAnglin';
+                    break;
+                case 'date':
+                    output = new Date().toString();
+                    break;
+                case 'echo':
+                    output = args.join(' ');
+                    break;
+                case 'clear':
+                    history.innerHTML = '';
+                    output = '';
+                    break;
+                case 'neofetch':
+                    output = neofetchCommand();
+                    break;
+                default:
+                    output = `Command '${cmd}' not found. Type 'help' for available commands.`;
+                    addToHistory(output, 'error');
+                    break;
+            }
+            
+            if (output && cmd !== 'clear') {
+                addToHistory(output);
             }
             
             commandHistory.push(input);
@@ -455,9 +495,9 @@ Swap:        2097148           0     2097148`;
                 }
             } else if (e.key === 'Tab') {
                 e.preventDefault();
-                // Simple tab completion for commands
                 const currentInput = commandInput.value;
-                const possibleCommands = Object.keys(commands).filter(cmd => 
+                const commands = ['help', 'ls', 'cd', 'pwd', 'whoami', 'date', 'echo', 'clear', 'neofetch'];
+                const possibleCommands = commands.filter(cmd => 
                     cmd.startsWith(currentInput)
                 );
                 if (possibleCommands.length === 1) {
