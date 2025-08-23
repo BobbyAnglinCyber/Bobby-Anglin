@@ -1,27 +1,503 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ubuntu Terminal Demo</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ubuntu Terminal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Ubuntu Mono', monospace;
+            background: #2d0922;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .terminal-window {
+            width: 900px;
+            max-width: 100%;
+            background: #2d0922;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            border: 1px solid #4a4a4a;
+        }
+
+        .title-bar {
+            background: linear-gradient(135deg, #3c3c3c, #2b2b2b);
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            position: relative;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close { background: #ff5f57; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #28ca42; }
+
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .window-title {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .terminal-body {
+            background: #2d0922;
+            min-height: 500px;
+            padding: 20px;
+            color: #ffffff;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-y: auto;
+        }
+
+        .prompt-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .prompt {
+            color: #00ff41;
+            font-weight: bold;
+        }
+
+        .user {
+            color: #00ff41;
+        }
+
+        .at {
+            color: #ffffff;
+        }
+
+        .host {
+            color: #00ff41;
+        }
+
+        .colon {
+            color: #ffffff;
+        }
+
+        .path {
+            color: #5555ff;
+            font-weight: bold;
+        }
+
+        .dollar {
+            color: #ffffff;
+        }
+
+        .command-input {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-family: 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            outline: none;
+            flex: 1;
+            margin-left: 5px;
+        }
+
+        .output {
+            color: #ffffff;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+
+        .error {
+            color: #ff6b6b;
+        }
+
+        .success {
+            color: #51cf66;
+        }
+
+        .info {
+            color: #74c0fc;
+        }
+
+        .cursor {
+            background: #ffffff;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .history {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .file {
+            color: #ffffff;
+        }
+
+        .directory {
+            color: #74c0fc;
+            font-weight: bold;
+        }
+
+        .executable {
+            color: #51cf66;
+            font-weight: bold;
+        }
+
+        .ascii-art {
+            color: #e95420;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-  <div class="terminal">
-    <div class="terminal-header">
-      <span class="dot red"></span>
-      <span class="dot yellow"></span>
-      <span class="dot green"></span>
-      <span class="title">user@jammy:~</span>
+    <div class="terminal-window">
+        <div class="title-bar">
+            <div class="window-controls">
+                <button class="control-btn close"></button>
+                <button class="control-btn minimize"></button>
+                <button class="control-btn maximize"></button>
+            </div>
+            <div class="window-title">Terminal</div>
+        </div>
+        
+        <div class="terminal-body">
+            <div class="history" id="history">
+                <div class="output ascii-art">
+    ██╗   ██╗██████╗ ██╗   ██╗███╗   ██╗████████╗██╗   ██╗
+    ██║   ██║██╔══██╗██║   ██║████╗  ██║╚══██╔══╝██║   ██║
+    ██║   ██║██████╔╝██║   ██║██╔██╗ ██║   ██║   ██║   ██║
+    ██║   ██║██╔══██╗██║   ██║██║╚██╗██║   ██║   ██║   ██║
+    ╚██████╔╝██████╔╝╚██████╔╝██║ ╚████║   ██║   ╚██████╔╝
+     ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝   ╚═╝    ╚═════╝ 
+                                                          
+                    22.04 LTS Jammy Jellyfish
+                </div>
+                <div class="output">Welcome to Ubuntu 22.04.3 LTS (GNU/Linux 5.19.0-46-generic x86_64)</div>
+                <div class="output">
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+                </div>
+                <div class="output">System information as of Sat Aug 23 14:30:22 UTC 2025</div>
+                <div class="output">
+  System load:  0.08              Processes:             128
+  Usage of /:   12.4% of 29.12GB  Users logged in:       1
+  Memory usage: 23%               IPv4 address for eth0: 192.168.1.100
+  Swap usage:   0%
+                </div>
+                <div class="output">Last login: Sat Aug 23 14:25:15 2025 from 192.168.1.1</div>
+            </div>
+            
+            <div class="prompt-line">
+                <span class="prompt">
+                    <span class="user">ubuntu</span><span class="at">@</span><span class="host">jammy</span><span class="colon">:</span><span class="path">~</span><span class="dollar">$</span>
+                </span>
+                <input type="text" class="command-input" id="commandInput" autofocus>
+                <span class="cursor" id="cursor">&nbsp;</span>
+            </div>
+        </div>
     </div>
-    <div class="terminal-body" id="terminal">
-      <div class="line">
-        <span class="prompt">user@jammy:/home/user$</span>
-        <span class="input" id="input" contenteditable="true"></span>
-      </div>
-    </div>
-  </div>
 
-  <script src="script.js"></script>
+    <script>
+        const commandInput = document.getElementById('commandInput');
+        const history = document.getElementById('history');
+        const cursor = document.getElementById('cursor');
+        
+        let currentPath = '~';
+        let commandHistory = [];
+        let historyIndex = -1;
+        
+        // File system simulation
+        const fileSystem = {
+            '~': {
+                type: 'directory',
+                contents: {
+                    'Documents': { type: 'directory', contents: {} },
+                    'Downloads': { type: 'directory', contents: {} },
+                    'Desktop': { type: 'directory', contents: {} },
+                    'Pictures': { type: 'directory', contents: {} },
+                    'Music': { type: 'directory', contents: {} },
+                    'Videos': { type: 'directory', contents: {} },
+                    '.bashrc': { type: 'file', content: '# ~/.bashrc: executed by bash(1) for non-login shells.' },
+                    'hello.txt': { type: 'file', content: 'Hello Ubuntu!' },
+                    'script.sh': { type: 'executable', content: '#!/bin/bash\necho "Hello from script!"' }
+                }
+            }
+        };
+
+        const commands = {
+            help: () => {
+                return `Available commands:
+  help     - Show this help message
+  ls       - List directory contents
+  pwd      - Print working directory
+  whoami   - Display current username
+  date     - Show current date and time
+  echo     - Display text
+  cat      - Display file contents
+  clear    - Clear terminal screen
+  uname    - System information
+  uptime   - System uptime
+  ps       - Show running processes
+  df       - Display filesystem usage
+  free     - Show memory usage
+  neofetch - Display system info with ASCII art`;
+            },
+            
+            ls: (args) => {
+                const currentDir = getCurrentDirectory();
+                if (!currentDir) return 'Directory not found';
+                
+                let output = '';
+                for (const [name, item] of Object.entries(currentDir.contents)) {
+                    const className = item.type === 'directory' ? 'directory' : 
+                                    item.type === 'executable' ? 'executable' : 'file';
+                    output += `<span class="${className}">${name}</span>  `;
+                }
+                return output || 'Directory is empty';
+            },
+            
+            pwd: () => currentPath,
+            
+            whoami: () => 'ubuntu',
+            
+            date: () => new Date().toString(),
+            
+            echo: (args) => args.join(' '),
+            
+            cat: (args) => {
+                if (args.length === 0) return 'cat: missing file operand';
+                const filename = args[0];
+                const currentDir = getCurrentDirectory();
+                if (!currentDir) return 'Directory not found';
+                
+                const file = currentDir.contents[filename];
+                if (!file) return `cat: ${filename}: No such file or directory`;
+                if (file.type === 'directory') return `cat: ${filename}: Is a directory`;
+                
+                return file.content;
+            },
+            
+            clear: () => {
+                history.innerHTML = '';
+                return '';
+            },
+            
+            uname: (args) => {
+                if (args.includes('-a')) {
+                    return 'Linux jammy 5.19.0-46-generic #47-Ubuntu SMP PREEMPT_DYNAMIC Mon Jun 20 20:08:34 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux';
+                }
+                return 'Linux';
+            },
+            
+            uptime: () => {
+                const uptime = Math.floor(Math.random() * 86400); // Random uptime in seconds
+                const hours = Math.floor(uptime / 3600);
+                const minutes = Math.floor((uptime % 3600) / 60);
+                return ` 14:30:22 up ${hours}:${minutes.toString().padStart(2, '0')}, 1 user, load average: 0.08, 0.12, 0.15`;
+            },
+            
+            ps: () => {
+                return `  PID TTY          TIME CMD
+ 1234 pts/0    00:00:00 bash
+ 5678 pts/0    00:00:00 ps`;
+            },
+            
+            df: () => {
+                return `Filesystem      1K-blocks      Used Available Use% Mounted on
+/dev/sda1        30485760   3940148  25281404  14% /
+tmpfs             2021752         0   2021752   0% /dev/shm
+/dev/sda2         1046528     34568    946744   4% /boot`;
+            },
+            
+            free: () => {
+                return `               total        used        free      shared  buff/cache   available
+Mem:         4043504      931428     1402076       12000     1710000     2782076
+Swap:        2097148           0     2097148`;
+            },
+            
+            neofetch: () => {
+                return `<span class="ascii-art">                          ./+o+-       
+                  yyyyy- -yyyyyy+      
+               ://+//////-yyyyyyo      
+           .++ .:/++++++/-.+sss/\`      
+         .:++o:  /++++++++/:--:/-      
+        o:+o+:++.\`..\`\`\`.-/oo+++++/     
+       .:+o:+o/.          \`+sssoo+/    
+  .++/+:+oo+o:\`             /sssooo.   
+ /+++//+:\`oo+o               /::--:.   
+ \+/+o+++\`o++o               ++////.   
+  .++.o+++oo+:\`             /dddhhh.   
+       .+.o+oo:.          \`oddhhhh+    
+        \+.++o+o\`\`-\`\`\`\`.:ohdhhhhh+     
+         \`:o+++ \`ohhhhhhhhyo++os:      
+           .o:\`.syhhhhhhh/.oo++o\`      
+               /osyyyyyyo++ooo+++/     
+                   \`\`\`\` +oo+++o\:     
+                        \`oo++.       </span>
+
+<span class="user">ubuntu</span>@<span class="host">jammy</span>
+<span style="color: #e95420;">-----------</span>
+<span style="color: #74c0fc;">OS:</span> Ubuntu 22.04.3 LTS x86_64
+<span style="color: #74c0fc;">Kernel:</span> 5.19.0-46-generic
+<span style="color: #74c0fc;">Uptime:</span> 2 hours, 15 mins
+<span style="color: #74c0fc;">Shell:</span> bash 5.1.16
+<span style="color: #74c0fc;">Terminal:</span> gnome-terminal
+<span style="color: #74c0fc;">CPU:</span> Intel i7-12700K (16) @ 3.600GHz
+<span style="color: #74c0fc;">Memory:</span> 931MiB / 3949MiB`;
+            }
+        };
+
+        function getCurrentDirectory() {
+            const pathParts = currentPath.split('/').filter(p => p);
+            let current = fileSystem['~'];
+            
+            for (const part of pathParts) {
+                if (part === '~') continue;
+                if (current && current.contents && current.contents[part]) {
+                    current = current.contents[part];
+                } else {
+                    return null;
+                }
+            }
+            
+            return current;
+        }
+
+        function addToHistory(content, className = '') {
+            const div = document.createElement('div');
+            div.className = `output ${className}`;
+            div.innerHTML = content;
+            history.appendChild(div);
+            history.scrollTop = history.scrollHeight;
+        }
+
+        function processCommand(input) {
+            const parts = input.trim().split(' ');
+            const cmd = parts[0].toLowerCase();
+            const args = parts.slice(1);
+            
+            // Add command to history
+            addToHistory(`<span class="user">ubuntu</span><span class="at">@</span><span class="host">jammy</span><span class="colon">:</span><span class="path">${currentPath}</span><span class="dollar">$</span> ${input}`);
+            
+            if (cmd === '') return;
+            
+            if (commands[cmd]) {
+                const output = commands[cmd](args);
+                if (output) {
+                    addToHistory(output);
+                }
+            } else {
+                addToHistory(`Command '${cmd}' not found. Type 'help' for available commands.`, 'error');
+            }
+            
+            commandHistory.push(input);
+            historyIndex = commandHistory.length;
+        }
+
+        commandInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const command = commandInput.value;
+                processCommand(command);
+                commandInput.value = '';
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (historyIndex > 0) {
+                    historyIndex--;
+                    commandInput.value = commandHistory[historyIndex];
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (historyIndex < commandHistory.length - 1) {
+                    historyIndex++;
+                    commandInput.value = commandHistory[historyIndex];
+                } else {
+                    historyIndex = commandHistory.length;
+                    commandInput.value = '';
+                }
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                // Simple tab completion for commands
+                const currentInput = commandInput.value;
+                const possibleCommands = Object.keys(commands).filter(cmd => 
+                    cmd.startsWith(currentInput)
+                );
+                if (possibleCommands.length === 1) {
+                    commandInput.value = possibleCommands[0];
+                }
+            }
+        });
+
+        // Keep focus on input
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.terminal-body')) {
+                commandInput.focus();
+            }
+        });
+
+        // Blinking cursor
+        setInterval(() => {
+            cursor.style.opacity = cursor.style.opacity === '0' ? '1' : '0';
+        }, 500);
+
+        // Window controls functionality
+        document.querySelector('.close').addEventListener('click', () => {
+            if (confirm('Close terminal?')) {
+                document.querySelector('.terminal-window').style.display = 'none';
+            }
+        });
+
+        document.querySelector('.minimize').addEventListener('click', () => {
+            document.querySelector('.terminal-window').style.transform = 'scale(0.1)';
+            setTimeout(() => {
+                document.querySelector('.terminal-window').style.transform = 'scale(1)';
+            }, 1000);
+        });
+
+        document.querySelector('.maximize').addEventListener('click', () => {
+            const terminal = document.querySelector('.terminal-window');
+            terminal.style.width = terminal.style.width === '100vw' ? '900px' : '100vw';
+            terminal.style.height = terminal.style.height === '100vh' ? 'auto' : '100vh';
+            terminal.style.borderRadius = terminal.style.width === '100vw' ? '0' : '12px';
+        });
+    </script>
 </body>
 </html>
