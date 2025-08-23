@@ -1,26 +1,46 @@
 body {
-  background: #1e1e1e;
-  color: #00ffcc;
-  font-family: monospace;
-  padding: 20px;
+  margin: 0;
+  height: 100vh;
+  background: #300a24; /* Jammy Jellyfish-inspired */
+  font-family: "Ubuntu Mono", monospace;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#terminal-container {
+  width: 80%;
+  max-width: 800px;
+  height: 500px;
+  background: #2b0f3a;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0,255,128,0.2);
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 #terminal {
-  max-width: 800px;
-  margin: 0 auto;
-  white-space: pre-wrap;
+  flex: 1;
+  color: #00ff99;
+  font-size: 16px;
 }
 
 .prompt {
-  color: #ff7f50;
+  color: #00ff99;
 }
 
-.input {
+.input-line {
+  display: flex;
+}
+
+.input-line input {
+  background: transparent;
+  border: none;
+  color: #00ff99;
   outline: none;
+  flex: 1;
+  font-family: inherit;
+  font-size: inherit;
 }
-
-.output {
-  margin-left: 1.5em;
-  color: #00ffaa;
-}
-
