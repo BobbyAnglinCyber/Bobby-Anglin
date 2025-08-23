@@ -6,7 +6,7 @@ function newLine() {
 
   const prompt = document.createElement("span");
   prompt.classList.add("prompt");
-  prompt.textContent = "user@jammy:/home/user$ ";
+  prompt.textContent = "BobbyAnglin@portfolio:~$ ";
 
   const input = document.createElement("span");
   input.classList.add("input");
