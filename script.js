@@ -1,83 +1,121 @@
 const terminal = document.getElementById("terminal");
 
-// Terminal filesystem structure
-const fs = {
-  home: {
-    about: "Hello! I'm Bobby Anglin. Welcome to my portfolio terminal!",
-    Projects: ["Project1", "Project2"],
-    Skills: ["HTML", "CSS", "JS"],
-    Experience: ["Job1", "Job2"],
-    Education: ["Degree1", "Degree2"],
-    Contacts: ["Email", "LinkedIn"]
-  }
+let username = "BobbyAnglin";
+let hostname = "portfolio";
+let currentPath = "/home/BobbyAnglin";
+
+// Portfolio filesystem
+const fakeFS = {
+  "/": ["home"],
+  "/home": ["BobbyAnglin"],
+  "/home/BobbyAnglin": ["Projects", "Skills", "Experience", "Education", "Contacts", "about.txt"],
+  "/home/BobbyAnglin/Projects": ["Project1", "Project2", "Project3"],
+  "/home/BobbyAnglin/Skills": ["JavaScript", "Python", "Cybersecurity", "Linux"],
+  "/home/BobbyAnglin/Experience": ["Company1", "Company2"],
+  "/home/BobbyAnglin/Education": ["Bachelors", "Certifications"],
+  "/home/BobbyAnglin/Contacts": ["email.txt", "linkedin.txt"]
 };
 
-// Current directory pointer
-let currentDir = fs.home;
+// File contents
+const fileContents = {
+  "about.txt": "Hello! I'm Bobby Anglin, a cybersecurity enthusiast building interactive portfolios.",
+  "email.txt": "bobby@example.com",
+  "linkedin.txt": "https://www.linkedin.com/in/bobbyanglin"
+};
 
-// Initialize terminal
-function initTerminal() {
-  printPrompt();
-}
-
-function printPrompt() {
+// Create new prompt line
+function newPrompt() {
   const line = document.createElement("div");
+  line.classList.add("line");
+
   const prompt = document.createElement("span");
   prompt.classList.add("prompt");
-  prompt.textContent = "BobbyAnglin@Portfolio:~$ ";
-  line.appendChild(prompt);
+  prompt.textContent = `${username}@${hostname}:${currentPath}$`;
 
   const input = document.createElement("input");
   input.classList.add("input");
-  input.autofocus = true;
+  input.type = "text";
 
-  input.addEventListener("keydown", handleCommand);
-
+  line.appendChild(prompt);
   line.appendChild(input);
   terminal.appendChild(line);
+
   input.focus();
-}
 
-function handleCommand(e) {
-  if (e.key === "Enter") {
-    const input = e.target;
-    const command = input.value.trim();
-    const output = document.createElement("div");
-
-    executeCommand(command, output);
-
-    input.disabled = true;
-    terminal.appendChild(output);
-    printPrompt();
-    terminal.scrollTop = terminal.scrollHeight;
-  }
-}
-
-function executeCommand(cmd, output) {
-  if (cmd === "help") {
-    output.innerHTML = "Available commands: <span class='dir'>ls</span>, <span class='dir'>cd [directory]</span>, <span class='dir'>about</span>, <span class='dir'>clear</span>";
-  } else if (cmd === "ls") {
-    output.innerHTML = Object.keys(currentDir).map(item => {
-      if (Array.isArray(currentDir[item])) return `<span class='dir'>${item}</span>`;
-      return `<span class='file'>${item}</span>`;
-    }).join("  ");
-  } else if (cmd.startsWith("cd ")) {
-    const dir = cmd.split(" ")[1];
-    if (currentDir[dir] && Array.isArray(currentDir[dir])) {
-      currentDir = { [dir]: currentDir[dir] }; // Simplified directory navigation
-      output.textContent = "";
-    } else {
-      output.textContent = `bash: cd: ${dir}: No such directory`;
+  input.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      handleCommand(input.value);
+      input.disabled = true;
+      newPrompt();
+      terminal.scrollTop = terminal.scrollHeight;
     }
-  } else if (cmd === "about") {
-    output.textContent = fs.home.about;
-  } else if (cmd === "clear") {
-    terminal.innerHTML = "";
-  } else {
-    output.textContent = `bash: ${cmd}: command not found`;
-  }
+  });
 }
 
-initTerminal();
+// Handle commands
+function handleCommand(cmd) {
+  const output = document.createElement("div");
+  output.classList.add("output");
 
+  let parts = cmd.trim().split(" ");
+  let base = parts[0];
+  let args = parts.slice(1);
+
+  switch(base) {
+    case "help":
+      output.innerHTML = "Available commands: <br>help, ls, cd, pwd, whoami, cat, clear";
+      break;
+    case "whoami":
+      output.textContent = username;
+      break;
+    case "pwd":
+      output.textContent = currentPath;
+      break;
+    case "ls":
+      let items = fakeFS[currentPath] || [];
+      output.innerHTML = items.map(item =>
+        fakeFS[`${currentPath}/${item}`] 
+          ? `<span class="dir">${item}</span>` 
+          : `<span class="file">${item}</span>`
+      ).join("  ");
+      break;
+    case "cd":
+      if (!args[0]) break;
+      let target = args[0];
+      if (target === "..") {
+        if (currentPath !== "/") {
+          currentPath = currentPath.split("/").slice(0, -1).join("/") || "/";
+        }
+      } else {
+        let newPath = currentPath === "/" ? `/${target}` : `${currentPath}/${target}`;
+        if (fakeFS[newPath]) {
+          currentPath = newPath;
+        } else {
+          output.innerHTML = `<span class="error">cd: ${target}: No such file or directory</span>`;
+        }
+      }
+      break;
+    case "cat":
+      if (!args[0]) break;
+      let filename = args[0];
+      if (fileContents[filename]) {
+        output.textContent = fileContents[filename];
+      } else {
+        output.innerHTML = `<span class="error">cat: ${filename}: No such file</span>`;
+      }
+      break;
+    case "clear":
+      terminal.innerHTML = "";
+      return;
+    case "":
+      output.textContent = "";
+      break;
+    default:
+      output.innerHTML = `<span class="error">${base}: command not found</span>`;
+  }
+
+  terminal.appendChild(output);
+}
+
+newPrompt();
 
