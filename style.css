@@ -1,46 +1,53 @@
-body {
-  margin: 0;
-  height: 100vh;
-  background: #300a24; /* Jammy Jellyfish-inspired */
-  font-family: "Ubuntu Mono", monospace;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#terminal-container {
-  width: 80%;
+/* Terminal container */
+.terminal {
+  background-color: #300a24; /* Ubuntu purple-black */
+  color: #eeeeec; /* Default text color */
+  font-family: 'Ubuntu Mono', monospace; /* Ubuntu mono font */
+  font-size: 14px;
+  line-height: 1.4;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  width: 100%;
   max-width: 800px;
-  height: 500px;
-  background: #2b0f3a;
-  border-radius: 10px;
-  box-shadow: 0 0 20px rgba(0,255,128,0.2);
-  padding: 15px;
+  margin: 40px auto;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
 }
 
-#terminal {
-  flex: 1;
-  color: #00ff99;
-  font-size: 16px;
-}
-
+/* Prompt */
 .prompt {
-  color: #00ff99;
+  color: #00d07f; /* Ubuntu green prompt color */
+  font-weight: bold;
 }
 
-.input-line {
-  display: flex;
-}
-
-.input-line input {
-  background: transparent;
-  border: none;
-  color: #00ff99;
+/* Commands input */
+.input {
   outline: none;
-  flex: 1;
+  border: none;
+  background: transparent;
+  color: inherit;
   font-family: inherit;
   font-size: inherit;
+  width: 90%;
+}
+
+/* Highlight outputs differently */
+.output {
+  color: #f8f8f2; /* Light grayish output */
+  margin-left: 0.5em;
+}
+
+/* Directory names */
+.dir {
+  color: #ffb964; /* Ubuntu orange for directories */
+}
+
+/* Files */
+.file {
+  color: #78dce8; /* Ubuntu cyan for files */
+}
+
+/* Clear terminal smoothly */
+.clear {
+  display: none;
 }
