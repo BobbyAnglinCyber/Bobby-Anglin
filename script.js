@@ -1,16 +1,19 @@
 const terminal = document.getElementById("terminal");
 
-function newLine() {
+// Define initial prompt
+const PROMPT_TEXT = "BobbyAnglin@Portfolio:~$ ";
+
+// Function to create a new input line
+function createInputLine() {
   const line = document.createElement("div");
-  line.classList.add("line");
+  line.classList.add("input-line");
 
   const prompt = document.createElement("span");
   prompt.classList.add("prompt");
-  prompt.textContent = "BobbyAnglin@portfolio:~$ ";
+  prompt.textContent = PROMPT_TEXT;
 
-  const input = document.createElement("span");
-  input.classList.add("input");
-  input.contentEditable = true;
+  const input = document.createElement("input");
+  input.autofocus = true;
 
   line.appendChild(prompt);
   line.appendChild(input);
@@ -18,39 +21,38 @@ function newLine() {
 
   input.focus();
 
-  // keep cursor inside input
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleCommand(input.textContent.trim());
-      input.contentEditable = false;
+  // Handle enter key
+  input.addEventListener("keydown", function(event) {
+    if(event.key === "Enter") {
+      handleCommand(input.value);
+      input.disabled = true; // Disable the current line
+      createInputLine(); // Create new input line
+      terminal.scrollTop = terminal.scrollHeight; // Scroll down
     }
   });
 }
 
-function handleCommand(cmd) {
-  let output = document.createElement("div");
-  output.classList.add("output");
+// Basic command handler
+function handleCommand(command) {
+  const output = document.createElement("div");
+  command = command.trim().toLowerCase();
 
-  if (cmd === "help") {
-    output.textContent = "Available commands: help, ls, pwd, clear";
-  } else if (cmd === "ls") {
-    output.textContent = "Desktop  Documents  Downloads  Music  Pictures  Videos";
-  } else if (cmd === "pwd") {
-    output.textContent = "/home/user";
-  } else if (cmd === "clear") {
+  if(command === "help") {
+    output.textContent = "Available commands: help, about, clear";
+  } else if(command === "about") {
+    output.textContent = "Hi! I'm Bobby Anglin, a cybersecurity enthusiast and portfolio creator.";
+  } else if(command === "clear") {
     terminal.innerHTML = "";
-    newLine();
     return;
-  } else if (cmd.length === 0) {
+  } else if(command === "") {
     output.textContent = "";
   } else {
-    output.textContent = `Command not found: ${cmd}`;
+    output.textContent = `${command}: command not found`;
   }
 
   terminal.appendChild(output);
-  newLine();
 }
 
-// Start terminal
-newLine();
+// Initialize terminal
+createInputLine();
+
