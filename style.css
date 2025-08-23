@@ -1,81 +1,62 @@
-/* Body & background */
 body {
-  margin: 0;
-  height: 100vh;
-  background: radial-gradient(circle at top left, #300a24, #1a1a1a);
+  background-color: #0d1117;
+  font-family: monospace;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "Ubuntu Mono", monospace;
+  height: 100vh;
+  margin: 0;
 }
 
-/* Terminal window */
-#terminal {
-  background: rgba(28, 28, 28, 0.95);
-  backdrop-filter: blur(6px);
-  color: #eeeeec;
-  width: 80%;
-  max-width: 900px;
-  height: 70%;
-  padding: 35px 15px 15px 15px;
-  border-radius: 10px;
-  box-shadow: 0 0 25px rgba(0,0,0,0.7);
-  overflow-y: auto;
-  white-space: pre-wrap;
-  border: 1px solid #3c3c3c;
-  position: relative;
+.terminal {
+  background: #1e1e1e;
+  border-radius: 8px;
+  width: 700px;
+  max-width: 95%;
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.2);
+  overflow: hidden;
 }
 
-/* Top bar like GNOME Terminal */
-#terminal::before {
-  content: "";
-  display: block;
-  height: 22px;
-  width: 100%;
-  background: linear-gradient(to right, #2e2e2e, #222);
-  border-radius: 8px 8px 0 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-/* Top bar buttons placeholder */
-#terminal::after {
-  content: "";
+.terminal-header {
   display: flex;
-  gap: 5px;
-  position: absolute;
-  top: 5px;
-  left: 10px;
+  align-items: center;
+  background: #2d2d2d;
+  padding: 5px 10px;
+  border-bottom: 1px solid #444;
 }
 
-.line {
-  display: flex;
-  flex-wrap: wrap;
+.dot {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.red { background: #ff5f56; }
+.yellow { background: #ffbd2e; }
+.green { background: #27c93f; }
+
+.title {
+  color: #ccc;
+  margin-left: auto;
+  font-size: 14px;
+}
+
+.terminal-body {
+  padding: 10px;
+  color: #33ff99;
+  font-size: 16px;
+  min-height: 300px;
 }
 
 .prompt {
-  color: #f57900; /* Ubuntu orange */
-  margin-right: 5px;
+  color: #33ff99;
 }
 
 .input {
-  flex: 1;
   outline: none;
-  border: none;
-  background: transparent;
-  color: #eeeeec;
-  font-family: inherit;
-  font-size: inherit;
+  display: inline-block;
+  min-width: 10px;
+  color: #fff;
 }
-
-.output {
-  margin-left: 20px;
-  color: #ddd;
-}
-
-/* Syntax colors */
-.dir { color: #729fcf; }   /* blue */
-.file { color: #eeeeec; }  /* white */
-.error { color: #ef2929; } /* red */
 
